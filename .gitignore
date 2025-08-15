@@ -1,0 +1,34 @@
+# Build artifacts
+*.zip
+ccusage-indicator.zip
+
+# Compiled schemas (auto-generated)
+**/gschemas.compiled
+
+# Node.js artifacts (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.orig
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp

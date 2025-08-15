@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.ccusage-indicator" path="/org/gnome/shell/extensions/ccusage-indicator/">
+    <key name="refresh-interval" type="i">
+      <default>5</default>
+      <summary>Refresh interval in minutes</summary>
+      <description>How often to check for Claude Code usage updates, in minutes</description>
+      <range min="1" max="60"/>
+    </key>
+    
+    <key name="show-detailed-time" type="b">
+      <default>true</default>
+      <summary>Show detailed time format</summary>
+      <description>Whether to show hours and minutes instead of just minutes when under 1 hour</description>
+    </key>
+    
+    <key name="ccusage-command" type="s">
+      <default>'npx ccusage'</default>
+      <summary>Command to execute ccusage</summary>
+      <description>The command path to execute ccusage (default: npx ccusage)</description>
+    </key>
+    
+    <key name="command-timeout" type="i">
+      <default>30</default>
+      <summary>Command timeout in seconds</summary>
+      <description>How long to wait for the ccusage command to complete, in seconds</description>
+      <range min="5" max="120"/>
+    </key>
+  </schema>
+</schemalist>
