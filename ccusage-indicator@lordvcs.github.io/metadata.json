@@ -2,8 +2,9 @@
   "uuid": "ccusage-indicator@lordvcs.github.io",
   "name": "Claude Code Usage Indicator",
   "description": "Shows remaining time for Claude Code usage blocks in the top panel. Automatically refreshes every 5 minutes to display time remaining in your current usage session.",
-  "shell-version": [ "45", "46", "47" ],
+  "shell-version": [ "45", "46", "47", "48" ],
   "url": "https://github.com/lordvcs/ccusage-gnome-extension",
   "session-modes": [ "user" ],
-  "gettext-domain": "ccusage-indicator"
+  "gettext-domain": "ccusage-indicator",
+  "settings-schema": "org.gnome.shell.extensions.ccusage-indicator"
 }

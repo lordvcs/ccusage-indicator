@@ -32,8 +32,15 @@ export default class CCUsageIndicatorPreferences extends ExtensionPreferences {
             }),
         });
 
-        // Bind the setting
-        this.getSettings().bind(
+        // Create settings object
+        const schemaSource = Gio.SettingsSchemaSource.new_from_directory(
+            this.metadata.dir.get_child('schemas').get_path(),
+            Gio.SettingsSchemaSource.get_default(),
+            false
+        );
+        const schema = schemaSource.lookup('org.gnome.shell.extensions.ccusage-indicator', false);
+        const settings = new Gio.Settings({settings_schema: schema});
+        settings.bind(
             'refresh-interval',
             refreshRow,
             'value',
@@ -55,7 +62,7 @@ export default class CCUsageIndicatorPreferences extends ExtensionPreferences {
             subtitle: _('Display hours and minutes instead of just minutes when under 1 hour'),
         });
 
-        this.getSettings().bind(
+        settings.bind(
             'show-detailed-time',
             showSecondsRow,
             'active',
@@ -78,7 +85,7 @@ export default class CCUsageIndicatorPreferences extends ExtensionPreferences {
             show_apply_button: true,
         });
 
-        this.getSettings().bind(
+        settings.bind(
             'ccusage-command',
             commandRow,
             'text',
@@ -100,7 +107,7 @@ export default class CCUsageIndicatorPreferences extends ExtensionPreferences {
             }),
         });
 
-        this.getSettings().bind(
+        settings.bind(
             'command-timeout',
             timeoutRow,
             'value',
