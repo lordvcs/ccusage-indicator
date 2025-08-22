@@ -2,6 +2,8 @@
 
 A GNOME Shell extension that displays remaining time for your Claude Code usage blocks directly in the top panel, automatically refreshing every 5 minutes (configurable).
 
+![Gnome Claude Code usage indicator](/screenshot.png?raw=true "Gnome Claude Code usage indicator")
+
 ## Features
 
 - 🕒 Shows remaining time in active Claude Code usage blocks
@@ -24,25 +26,29 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
 ## Installation
 
 ### Method 1: From extensions.gnome.org (Recommended)
-*Coming soon - extension will be published to extensions.gnome.org*
+
+_Coming soon - extension will be published to extensions.gnome.org_
 
 ### Method 2: Manual Installation
 
 #### Option A: Using the Install Script (Recommended)
 
 1. **Download this repository**:
+
    ```bash
    git clone https://github.com/lordvcs/ccusage-indicator.git
    cd ccusage-indicator
    ```
 
 2. **Run the install script**:
+
    ```bash
    chmod +x install.sh
    ./install.sh
    ```
-   
+
    The script will:
+
    - Check all dependencies (Node.js, npm, ccusage)
    - Install ccusage if missing
    - Copy extension files to the correct location
@@ -50,6 +56,7 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
    - Provide instructions to enable the extension
 
 3. **Enable the extension**:
+
    ```bash
    gnome-extensions enable ccusage-indicator@lordvcs.github.io
    ```
@@ -61,21 +68,23 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
 #### Option B: Manual File Copy
 
 1. **Install ccusage**:
+
    ```bash
    npm install -g ccusage
    ```
 
 2. **Install the extension manually**:
+
    ```bash
    # Clone or download this repository
    cp -r ccusage-indicator@lordvcs.github.io ~/.local/share/gnome-shell/extensions/
-   
+
    # Compile schemas
    glib-compile-schemas ~/.local/share/gnome-shell/extensions/ccusage-indicator@lordvcs.github.io/schemas/
-   
+
    # Restart GNOME Shell (Alt+F2, type 'r', press Enter)
    # Or log out and back in
-   
+
    # Enable the extension
    gnome-extensions enable ccusage-indicator@lordvcs.github.io
    ```
@@ -85,6 +94,7 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
 ### Panel Display
 
 The extension shows different states:
+
 - **"2h 35m (30%)"** - Hours and minutes remaining with usage percentage
 - **"45m (75%)"** - Minutes remaining with percentage (when less than 1 hour)
 - **"2h 35m"** - Time only (when percentage data unavailable)
@@ -101,10 +111,12 @@ The extension shows different states:
 ### Settings
 
 Access settings via:
+
 - GNOME Extensions app → Claude Code Usage Indicator → Settings
 - Command line: `gnome-extensions prefs ccusage-indicator@lordvcs.github.io`
 
 **Available Settings:**
+
 - **Refresh Interval**: 1-60 minutes (default: 5 minutes)
 - **Show Detailed Time**: Display format preferences
 - **Command Path**: Custom ccusage command (default: `npx ccusage`)
@@ -113,6 +125,7 @@ Access settings via:
 ## How It Works
 
 The extension:
+
 1. Executes `npx ccusage blocks --json` at configured intervals
 2. Parses JSON output to find the active usage block (`"isActive": true`)
 3. Calculates remaining time from `projection.remainingMinutes` or `endTime`
@@ -121,6 +134,7 @@ The extension:
 ## Data Source
 
 Uses the [ccusage](https://github.com/ryoppippi/ccusage) package to fetch Claude Code usage information. The extension looks for:
+
 - Active blocks with `"isActive": true`
 - Remaining time from `projection.remainingMinutes` (preferred)
 - Fallback calculation from `endTime` minus current time
@@ -128,6 +142,7 @@ Uses the [ccusage](https://github.com/ryoppippi/ccusage) package to fetch Claude
 ## Troubleshooting
 
 ### Extension Not Showing
+
 ```bash
 # Check if extension is enabled
 gnome-extensions list --enabled | grep ccusage-indicator
@@ -140,6 +155,7 @@ journalctl -f -o cat /usr/bin/gnome-shell
 ```
 
 ### "Error" Display
+
 ```bash
 # Verify ccusage is installed and working
 npx ccusage --version
@@ -150,6 +166,7 @@ npx ccusage blocks
 ```
 
 ### Settings Not Saving
+
 ```bash
 # Reset settings to defaults
 gsettings reset-recursively org.gnome.shell.extensions.ccusage-indicator
@@ -161,6 +178,7 @@ ls ~/.local/share/gnome-shell/extensions/ccusage-indicator@lordvcs.github.io/sch
 ## Development
 
 ### Testing Locally
+
 ```bash
 # Install in development location
 ln -sf $PWD/ccusage-indicator@lordvcs.github.io ~/.local/share/gnome-shell/extensions/
@@ -174,6 +192,7 @@ gnome-extensions enable ccusage-indicator@lordvcs.github.io
 ```
 
 ### Building for Distribution
+
 ```bash
 # Create zip for extensions.gnome.org
 cd ccusage-indicator@lordvcs.github.io
@@ -183,7 +202,7 @@ zip -r ../ccusage-indicator.zip * --exclude="*.git*"
 ## Compatibility
 
 - **GNOME Shell**: 45, 46, 47+
-- **Tested on**: Ubuntu 25.04, Fedora 40+, openSUSE Tumbleweed
+- **Tested on**: Ubuntu 25.04
 - **Architecture**: All (extension is pure JavaScript)
 
 ## License
