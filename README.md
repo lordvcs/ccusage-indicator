@@ -32,8 +32,8 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
 
 1. **Download this repository**:
    ```bash
-   git clone https://github.com/lordvcs/ccusage-gnome-extension.git
-   cd ccusage-gnome-extension
+   git clone https://github.com/lordvcs/ccusage-indicator.git
+   cd ccusage-indicator
    ```
 
 2. **Run the install script**:
@@ -85,8 +85,9 @@ The extension appears in your top panel showing remaining time like "2h 35m" or 
 ### Panel Display
 
 The extension shows different states:
-- **"2h 35m"** - Hours and minutes remaining in current block
-- **"45m"** - Minutes remaining (when less than 1 hour)
+- **"2h 35m (30%)"** - Hours and minutes remaining with usage percentage
+- **"45m (75%)"** - Minutes remaining with percentage (when less than 1 hour)
+- **"2h 35m"** - Time only (when percentage data unavailable)
 - **"No session"** - No active Claude Code usage block
 - **"Ended"** - Current block has expired
 - **"Error"** - Failed to fetch usage data
@@ -188,3 +189,5 @@ zip -r ../ccusage-indicator.zip * --exclude="*.git*"
 ## License
 
 This project is open source under MIT License. See the [ccusage](https://github.com/ryoppippi/ccusage) package for its licensing terms.
+
+P.S: this was coded using claude code

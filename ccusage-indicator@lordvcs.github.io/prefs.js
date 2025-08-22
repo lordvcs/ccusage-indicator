@@ -124,12 +124,12 @@ export default class CCUsageIndicatorPreferences extends ExtensionPreferences {
 
         const aboutRow = new Adw.ActionRow({
             title: _('Claude Code Usage Indicator'),
-            subtitle: _('Shows remaining time for Claude Code usage blocks'),
+            subtitle: _('Shows remaining time and usage percentage for Claude Code sessions'),
         });
 
         const linkButton = new Gtk.LinkButton({
             label: _('Project Homepage'),
-            uri: 'https://github.com/lordvcs/ccusage-gnome-extension',
+            uri: 'https://github.com/lordvcs/ccusage-indicator',
             valign: Gtk.Align.CENTER,
         });
 
