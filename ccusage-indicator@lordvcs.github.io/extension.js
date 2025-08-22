@@ -2,6 +2,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -28,7 +29,7 @@ export default class CCUsageIndicatorExtension extends Extension {
         this._label = new St.Label({
             text: 'Loading...',
             style_class: 'system-status-icon',
-            y_align: St.Align.MIDDLE
+            y_align: Clutter.ActorAlign.CENTER
         });
         
         this._indicator.add_child(this._label);
@@ -175,11 +176,16 @@ export default class CCUsageIndicatorExtension extends Extension {
                 return;
             }
             
-            // Format and display time
+            // Calculate percentage consumed
+            const percentageConsumed = this._calculatePercentageConsumed(activeBlock);
+            
+            // Format and display time with percentage
             const timeText = this._formatTime(remainingMinutes);
+            const displayText = percentageConsumed !== null ? 
+                `${timeText} (${percentageConsumed}%)` : timeText;
             const statusText = `${timeText} remaining in current session`;
             
-            this._setStatus(timeText, statusText);
+            this._setStatus(displayText, statusText);
             
         } catch (error) {
             console.error(`Error processing usage data: ${error}`);
@@ -208,6 +214,25 @@ export default class CCUsageIndicatorExtension extends Extension {
         }
         
         return null;
+    }
+
+    _calculatePercentageConsumed(activeBlock) {
+        // Check if we have projection data to calculate percentage
+        if (!activeBlock.projection || 
+            typeof activeBlock.projection.totalTokens !== 'number' ||
+            typeof activeBlock.totalTokens !== 'number') {
+            return null;
+        }
+        
+        const currentTokens = activeBlock.totalTokens;
+        const projectedTotalTokens = activeBlock.projection.totalTokens;
+        
+        if (projectedTotalTokens <= 0) {
+            return null;
+        }
+        
+        const percentage = Math.round((currentTokens / projectedTotalTokens) * 100);
+        return Math.min(100, Math.max(0, percentage));
     }
 
     _formatTime(minutes) {
