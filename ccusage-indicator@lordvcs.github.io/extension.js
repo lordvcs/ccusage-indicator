@@ -14,6 +14,7 @@ export default class CCUsageIndicatorExtension extends Extension {
         this._timeout = null;
         this._refreshing = false;
         this._settings = null;
+        this._refreshItem = null;
     }
 
     enable() {
@@ -64,6 +65,7 @@ export default class CCUsageIndicatorExtension extends Extension {
         
         this._label = null;
         this._settings = null;
+        this._refreshItem = null;
     }
 
     _setupTimer() {
@@ -86,11 +88,11 @@ export default class CCUsageIndicatorExtension extends Extension {
 
     _createMenu() {
         // Refresh menu item
-        const refreshItem = new PopupMenu.PopupMenuItem('Refresh Now');
-        refreshItem.connect('activate', () => {
+        this._refreshItem = new PopupMenu.PopupMenuItem('Refresh Now');
+        this._refreshItem.connect('activate', () => {
             this._updateUsageInfo();
         });
-        this._indicator.menu.addMenuItem(refreshItem);
+        this._indicator.menu.addMenuItem(this._refreshItem);
         
         // Separator
         this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
