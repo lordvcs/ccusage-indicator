@@ -116,28 +116,55 @@ export default class CCUsageIndicatorExtension extends Extension {
         try {
             // Get command from settings
             const commandStr = this._settings.get_string('ccusage-command');
-            const commandArgs = commandStr.split(' ').concat(['blocks', '--json']);
             
-            // Execute ccusage command
-            const proc = Gio.Subprocess.new(
-                commandArgs,
+            // First get JSON data
+            const jsonArgs = commandStr.split(' ').concat(['blocks', '--json']);
+            const jsonProc = Gio.Subprocess.new(
+                jsonArgs,
                 Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
             );
             
-            proc.communicate_utf8_async(null, null, (proc, result) => {
-                this._refreshing = false;
-                
+            jsonProc.communicate_utf8_async(null, null, (jsonProc, jsonResult) => {
                 try {
-                    const [, stdout, stderr] = proc.communicate_utf8_finish(result);
+                    const [, jsonStdout, jsonStderr] = jsonProc.communicate_utf8_finish(jsonResult);
                     
-                    if (proc.get_successful()) {
-                        this._processUsageData(stdout);
+                    if (jsonProc.get_successful()) {
+                        // Now get table output to extract token limit
+                        const tableArgs = commandStr.split(' ').concat(['blocks']);
+                        const tableProc = Gio.Subprocess.new(
+                            tableArgs,
+                            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+                        );
+                        
+                        tableProc.communicate_utf8_async(null, null, (tableProc, tableResult) => {
+                            this._refreshing = false;
+                            
+                            try {
+                                const [, tableStdout, tableStderr] = tableProc.communicate_utf8_finish(tableResult);
+                                
+                                let tokenLimit = null;
+                                if (tableProc.get_successful()) {
+                                    // Extract token limit from table output
+                                    const limitMatch = tableStdout.match(/assuming ([0-9,]+) token limit/);
+                                    if (limitMatch) {
+                                        tokenLimit = parseInt(limitMatch[1].replace(/,/g, ''));
+                                    }
+                                }
+                                
+                                this._processUsageData(jsonStdout, tokenLimit);
+                            } catch (error) {
+                                console.error(`Error processing table output: ${error}`);
+                                this._processUsageData(jsonStdout, null);
+                            }
+                        });
                     } else {
-                        console.error(`ccusage command failed: ${stderr}`);
+                        this._refreshing = false;
+                        console.error(`ccusage JSON command failed: ${jsonStderr}`);
                         this._setError('Command failed');
                     }
                 } catch (error) {
-                    console.error(`Error executing ccusage: ${error}`);
+                    this._refreshing = false;
+                    console.error(`Error executing ccusage JSON: ${error}`);
                     this._setError('Execution error');
                 }
             });
@@ -148,7 +175,7 @@ export default class CCUsageIndicatorExtension extends Extension {
         }
     }
 
-    _processUsageData(jsonData) {
+    _processUsageData(jsonData, tokenLimit = null) {
         try {
             const data = JSON.parse(jsonData);
             
@@ -179,7 +206,7 @@ export default class CCUsageIndicatorExtension extends Extension {
             }
             
             // Calculate percentage consumed
-            const percentageConsumed = this._calculatePercentageConsumed(activeBlock);
+            const percentageConsumed = this._calculatePercentageConsumed(activeBlock, tokenLimit);
             
             // Format and display time with percentage
             const timeText = this._formatTime(remainingMinutes);
@@ -218,23 +245,30 @@ export default class CCUsageIndicatorExtension extends Extension {
         return null;
     }
 
-    _calculatePercentageConsumed(activeBlock) {
-        // Check if we have projection data to calculate percentage
-        if (!activeBlock.projection || 
-            typeof activeBlock.projection.totalTokens !== 'number' ||
-            typeof activeBlock.totalTokens !== 'number') {
-            return null;
-        }
-        
+    _calculatePercentageConsumed(activeBlock, tokenLimit = null) {
         const currentTokens = activeBlock.totalTokens;
-        const projectedTotalTokens = activeBlock.projection.totalTokens;
         
-        if (projectedTotalTokens <= 0) {
+        if (typeof currentTokens !== 'number' || currentTokens <= 0) {
             return null;
         }
         
-        const percentage = Math.round((currentTokens / projectedTotalTokens) * 100);
-        return Math.min(100, Math.max(0, percentage));
+        // Prefer token limit calculation (matches ccusage table display)
+        if (tokenLimit && tokenLimit > 0) {
+            const percentage = Math.round((currentTokens / tokenLimit) * 100);
+            return Math.min(100, Math.max(0, percentage));
+        }
+        
+        // Fallback to projection calculation
+        if (activeBlock.projection && 
+            typeof activeBlock.projection.totalTokens === 'number' &&
+            activeBlock.projection.totalTokens > 0) {
+            
+            const projectedTotalTokens = activeBlock.projection.totalTokens;
+            const percentage = Math.round((currentTokens / projectedTotalTokens) * 100);
+            return Math.min(100, Math.max(0, percentage));
+        }
+        
+        return null;
     }
 
     _formatTime(minutes) {
